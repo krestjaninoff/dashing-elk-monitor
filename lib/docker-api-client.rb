@@ -118,8 +118,8 @@ class DockerMonitor
 end
 
 
-# Start the script!
+# Entry point for testing the script
 if __FILE__ == $0
-  monitor = DockerMonitor.new(["stupefied_ardinghelli", "missed_container"])
+  monitor = DockerMonitor.new(["good-container", "bad-container", "missed-container"])
   puts monitor.check
 end
