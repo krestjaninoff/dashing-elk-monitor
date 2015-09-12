@@ -20,5 +20,5 @@ mount (assuming that the docker instance on the host machine uses this socket).
 We need that to request docker's API.
 
 ### Building
-Build the image: `docker build -t krestjaninoff/docker-monitor:0.0.1 .`
-Start the container: `docker run -d -v /var/run/docker.sock:/var/run/docker.sock -p 8080:3030 --privileged --name docker-monitor krestjaninoff/docker-monitor:0.0.1`
+* Build the image: `docker build -t krestjaninoff/docker-monitor:0.0.1 .`
+* Start the container: `docker run -d -v /var/run/docker.sock:/var/run/docker.sock -p 8080:3030 --privileged --name docker-monitor krestjaninoff/docker-monitor:0.0.1`
