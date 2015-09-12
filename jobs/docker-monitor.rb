@@ -2,7 +2,8 @@ require './lib/docker-api-client.rb'
 
 
 ### Configuration
-monitor = DockerMonitor.new(["ghost-local", "missed-container"])
+containers = ["ghost-local", "missed-container"]
+monitor = DockerMonitor.new(containers)
 
 SCHEDULER.every '10s', :first_in => 0 do |job|
   begin
@@ -17,6 +18,12 @@ SCHEDULER.every '10s', :first_in => 0 do |job|
 
   rescue Exception => e
     puts "\e[33mDocker monitor job has raised an error! Please check jobs/docker.rb file.\e[0m"
+
+    puts e.message
     puts e.backtrace.inspect
+
+    containers.each do |container|
+      send_event("docker-" + container, state: "unknown", message: nil)
+    end
   end
 end

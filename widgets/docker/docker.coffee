@@ -15,3 +15,6 @@ class Dashing.Docker extends Dashing.Widget
 
     else if data.state == "red"
       $(@node).fadeOut().css('background-color', '#c83f13').fadeIn()
+
+    else if data.state == "unknown"
+      $(@node).fadeOut().css('background-color', '#343434').fadeIn()

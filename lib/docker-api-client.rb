@@ -40,24 +40,19 @@ class DockerMonitor
       next if @containers_to_check.empty? || !(@containers_to_check.include? name)
 
       # Gather necessary info
-      running_time = self.seconds_from_now(c.json["State"]["StartedAt"])
-      log_data = self.check_log_messages(c, @actual_time)
+      begin
+        running_time = self.seconds_from_now(c.json["State"]["StartedAt"])
+        log_data = self.check_log_messages(c, @actual_time)
 
-      # Determine the state of the container
-      state = GREEN
-      message = nil
+        # Determine the state of the container
+        state, message = self.analyze_metrics(c, running_time, log_data)
 
-      if !c.json["State"]["Running"]
-        state = "red"
-        message = "Container is down"
-
-      elsif running_time < @actual_time
-        state = YELLOW
-        message = "Container recently rebooted"
-
-      elsif !log_data.nil?
+      rescue Exception => e
         state = RED
-        message = !log_data["error"].nil? ? log_data["error"] : log_data["warn"]
+        message = e.message
+
+        puts e.message
+        puts e.backtrace.inspect
       end
 
       report[name] = {"state" => state, "message" => message}
@@ -70,6 +65,30 @@ class DockerMonitor
     end
 
     return report
+  end
+
+  def analyze_metrics(c, running_time, log_data)
+    state = GREEN
+    message = nil
+
+    if !c.json["State"]["Running"]
+      state = "red"
+      message = "Container is down"
+
+    elsif running_time < @actual_time
+      state = YELLOW
+      message = "Container recently rebooted"
+
+    elsif !log_data.nil? && !log_data["warn"].nil?
+      state = YELLOW
+      message = log_data["warn"]
+
+    elsif !log_data.nil? && !log_data["error"].nil?
+      state = RED
+      message = log_data["error"]
+    end
+
+    return state, message
   end
 
   # Convert string date into an amount of seconds from now
@@ -87,21 +106,30 @@ class DockerMonitor
     last_error = nil
 
     # Get container's logs string by string
-    container.logs(stdout: true, stderr: true, timestamps: true, tail: 10).each_line do |l|
+    begin
+      container.logs(stdout: true, stderr: true, timestamps: true, tail: 10).each_line do |l|
 
-      log_time = DateTime.parse(l.split(/\s/)[0].gsub(/^[^2]*/, ""))
-      seconds = ((DateTime.now.new_offset(0) - log_time.new_offset(0)) * 24 * 60 * 60).to_i
+        log_time = DateTime.parse(l.split(/\s/)[0].gsub(/^[^2]*/, ""))
+        seconds = ((DateTime.now.new_offset(0) - log_time.new_offset(0)) * 24 * 60 * 60).to_i
 
-      # Check if a message is not too old and has an appriate logging level
-      if seconds < actual_time
-        if l.include? " WARN "
-          last_warn = l.gsub(/^[^\]]*\]\s/, "")
+        # Check if a message is not too old and has an appriate logging level
+        if seconds < actual_time
+          if l.include? " WARN "
+            last_warn = l.gsub(/^[^\]]*\]\s/, "")
+          end
+          if l.include? " ERROR "
+            last_error = l.gsub(/^[^\]]*\]\s/, "")
+          end
         end
-        if l.include? " ERROR "
-          last_error = l.gsub(/^[^\]]*\]\s/, "")
-        end
+
       end
 
+    # Handle errors
+    rescue Exception => e
+      last_warn = "Unparsable logs"
+
+      puts e.message
+      puts e.backtrace.inspect
     end
 
     # Gather the results
