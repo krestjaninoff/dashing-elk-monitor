@@ -109,7 +109,9 @@ class DockerMonitor
     begin
       container.logs(stdout: true, stderr: true, timestamps: true, tail: 10).each_line do |l|
 
-        log_time = DateTime.parse(l.split(/\s/)[0].gsub(/^[^2]*/, ""))
+        # Retrieve date (docker returns logs with some garbage in the beginning of the lines,
+        # so we have to drop all the data before 201X)
+        log_time = DateTime.parse(l.gsub(/^[^2]*/, "").split(/\s/)[0])
         seconds = ((DateTime.now.new_offset(0) - log_time.new_offset(0)) * 24 * 60 * 60).to_i
 
         # Check if a message is not too old and has an appriate logging level
