@@ -2,10 +2,11 @@ require './lib/docker-api-client.rb'
 
 
 ### Configuration
-containers = ["ghost-local", "missed-container"]
+containers = ["corps-profiles-api", "corps-organizations-api", "corps-contractors-api",
+  "corps-payments-api", "corps-accounts-api", "corps-catalogs-api"]
 monitor = DockerMonitor.new(containers)
 
-SCHEDULER.every '10s', :first_in => 0 do |job|
+SCHEDULER.every '60s', :first_in => 0 do |job|
   begin
     reports = monitor.check
 

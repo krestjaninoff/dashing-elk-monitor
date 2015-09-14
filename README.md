@@ -21,4 +21,6 @@ We need that to request docker's API.
 
 ### Building
 * Build the image: `docker build -t krestjaninoff/docker-monitor:0.0.1 .`
-* Start the container: `docker run -d -v /var/run/docker.sock:/var/run/docker.sock -p 8080:3030 --name docker-monitor krestjaninoff/docker-monitor:0.0.1`
+* Start the container: `docker run -d -v /var/run/docker.sock:/tmp/docker.sock -p 8080:3030 --name docker-monitor krestjaninoff/docker-monitor:0.0.1`
+
+Important, the docker socket must not be mount under `var` directory: https://github.com/docker/docker/issues/5125

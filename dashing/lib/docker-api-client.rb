@@ -3,7 +3,7 @@ require 'date'
 require 'docker'
 
 # Set up Docker connection
-Docker.url = 'unix:///var/run/docker.sock'
+Docker.url = 'unix:///tmp/docker.sock'
 Docker.validate_version!
 
 #
