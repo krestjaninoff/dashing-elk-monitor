@@ -2,7 +2,13 @@ require './lib/docker-api-client.rb'
 
 
 ### Configuration
-containers = ["ghost-local", "missed-container"]
+containers = []
+File.read("dashboards/docker-monitor.erb").each_line do |line|
+  next if !(line.include? "data-container")
+
+  container = line.scan(/data-container="([^"]*)"/).last.first
+  containers.push container
+end
 monitor = DockerMonitor.new(containers)
 
 SCHEDULER.every '10s', :first_in => 0 do |job|

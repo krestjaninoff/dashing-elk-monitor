@@ -22,9 +22,12 @@ class DockerMonitor
   # Dummy constructor
   def initialize(containers = [], actual_time = 15 * 60)
     @containers_to_check = containers
-    @actual_time = actual_time
-    @known_errors = []
+    puts "Containers: \n---\n" + @containers_to_check.join("\n") + "\n---\n"
 
+    @actual_time = actual_time
+    puts "Actual time: " + @actual_time.to_s
+
+    @known_errors = []
     begin
       File.read("../known.errors").each_line do |line|
         error = line.tr("\n","")
