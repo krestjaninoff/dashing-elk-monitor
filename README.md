@@ -1,6 +1,6 @@
 ###Docker monitor extension for Dashing
 
-The project is under construction.
+*The project is under construction*.
 
 Inspired by https://github.com/swipely/docker-api and https://github.com/Shopify/dashing
 
@@ -23,4 +23,4 @@ Important, the docker socket must not be mount under `var` directory: https://gi
 
 ### Building
 * Build the image: `docker build -t krestjaninoff/docker-monitor:0.0.1 .`
-* Start the container: `docker run -d -v /path/to/known.errors:/known.errors -v /var/run/docker.sock:/tmp/docker.sock -p 8765:3030 --name docker-monitor krestjaninoff/docker-monitor:0.0.1`
+* Start the container: `docker run -d -v /path/to/dashboard.erb:/docker-monitor/dashboards/dashboard.erb -v /path/to/known.errors:/known.errors -v /var/run/docker.sock:/tmp/docker.sock -p 8765:3030 --name docker-monitor krestjaninoff/docker-monitor:0.0.1`
