@@ -10,6 +10,7 @@ Docker.validate_version!
 # Awesome Docker monitor
 #
 # Based on https://github.com/swipely/docker-api
+# TODO This class is awful, must be refactored
 #
 class DockerMonitor
 
@@ -22,6 +23,17 @@ class DockerMonitor
   def initialize(containers = [], actual_time = 15 * 60)
     @containers_to_check = containers
     @actual_time = actual_time
+    @known_errors = []
+
+    begin
+      File.read("../known.errors").each_line do |line|
+        error = line.tr("\n","")
+        @known_errors.push error if !error.empty?
+      end
+      puts "Known errors: \n---\n" + @known_errors.join("\n") + "\n---\n"
+    rescue Exception => e
+      puts "Registry with known errors not found"
+    end
   end
 
   # Main check
@@ -75,10 +87,6 @@ class DockerMonitor
       state = "red"
       message = "Container is down"
 
-    elsif running_time < @actual_time
-      state = YELLOW
-      message = "Container recently rebooted"
-
     elsif !log_data.nil? && !log_data["warn"].nil?
       state = YELLOW
       message = log_data["warn"]
@@ -86,6 +94,10 @@ class DockerMonitor
     elsif !log_data.nil? && !log_data["error"].nil?
       state = RED
       message = log_data["error"]
+
+    elsif running_time < @actual_time
+      state = YELLOW
+      message = "Container recently rebooted"
     end
 
     return state, message
@@ -104,6 +116,7 @@ class DockerMonitor
 
     last_warn = nil
     last_error = nil
+    msg_pattern = /^[^\]]*\]\s/ # everything from the beginning till the first ]
 
     # Get container's logs string by string
     begin
@@ -114,13 +127,14 @@ class DockerMonitor
         log_time = DateTime.parse(l.gsub(/^[^2]*/, "").split(/\s/)[0])
         seconds = ((DateTime.now.new_offset(0) - log_time.new_offset(0)) * 24 * 60 * 60).to_i
 
-        # Check if a message is not too old and has an appriate logging level
-        if seconds < actual_time
+        # Check if the message is not too old and not in the list of known errors
+        if seconds < actual_time && !(@known_errors.any? { |error| l.include? (error) })
+
+          # Check message's loggin level
           if l.include? " WARN "
-            last_warn = l.gsub(/^[^\]]*\]\s/, "")
-          end
-          if l.include? " ERROR "
-            last_error = l.gsub(/^[^\]]*\]\s/, "")
+            last_warn = l.gsub(msg_pattern, "")
+          elsif l.include? " ERROR "
+            last_error = l.gsub(msg_pattern, "")
           end
         end
 

@@ -12,7 +12,7 @@ SCHEDULER.every '10s', :first_in => 0 do |job|
     if reports
       reports.each do |container, report|
         send_event("docker-" + container, state: report["state"], message: report["message"])
-        puts "Message sent: " + "docker-" + container + " / " + report["state"]
+        puts "Message sent: " + "docker-" + container + " / " + report["state"] + ": " + (report["message"] || "ok")
       end
     end
 
