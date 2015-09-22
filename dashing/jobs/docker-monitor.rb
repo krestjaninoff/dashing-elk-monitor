@@ -11,7 +11,7 @@ File.read("dashboards/docker-monitor.erb").each_line do |line|
 end
 monitor = DockerMonitor.new(containers)
 
-SCHEDULER.every '10s', :first_in => 0 do |job|
+SCHEDULER.every '60s', :first_in => 0 do |job|
   begin
     reports = monitor.check
 
