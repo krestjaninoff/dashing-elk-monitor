@@ -7,25 +7,21 @@ Docker.url = 'unix:///var/run/docker.sock'
 Docker.validate_version!
 
 #
+# A time period during which an event (log error, container restart) can be considered as actual
+#
+ACTUAL_TIME = 15 * 60
+
+#
 # Awesome Docker monitor
 #
 # Based on https://github.com/swipely/docker-api
-# TODO This class is awful, must be refactored
 #
 class DockerMonitor
 
-  # Container states
-  GREEN = "green"
-  YELLOW = "yellow"
-  RED = "red"
-
   # Dummy constructor
-  def initialize(containers = [], actual_time = 15 * 60)
+  def initialize(containers = [])
     @containers_to_check = containers
     puts "Containers: \n---\n" + @containers_to_check.join("\n") + "\n---\n"
-
-    @actual_time = actual_time
-    puts "Actual time: " + @actual_time.to_s
 
     @known_errors = []
     begin
@@ -45,6 +41,7 @@ class DockerMonitor
     containers_checked = []
 
     # Get the list of available containers
+    threads = Hash.new
     containers = Docker::Container.all(:all => true)
     containers.each do |c|
 
@@ -54,32 +51,60 @@ class DockerMonitor
 
       next if @containers_to_check.empty? || !(@containers_to_check.include? name)
 
-      # Gather necessary info
-      begin
-        running_time = self.seconds_from_now(c.json["State"]["StartedAt"])
-        log_data = self.check_log_messages(c, @actual_time)
+      # Analyze containers data in parallel
+      threads[name] = Thread.new(c, @known_errors){ |c, errs|
+         Thread.current[:report] = ContainerAnalyzer.new(c, errs).analyze }
+    end
 
-        # Determine the state of the container
-        state, message = self.analyze_metrics(c, running_time, log_data)
-
-      rescue Exception => e
-        state = RED
-        message = e.message
-
-        puts e.message
-        puts e.backtrace.inspect
-      end
-
-      report[name] = {"state" => state, "message" => message}
+    # Gather threads reports
+    threads.each do |name, t|
+      t.join
+      report[name] = t[:report]
     end
 
     # Add info for missed containers
     missed_containers = @containers_to_check - containers_checked
     missed_containers.each do |c|
-      report[c] = {"state" => RED, "message" => "Container not found"}
+      report[c] = {"state" => ContainerAnalyzer::RED, "message" => "Container not found"}
     end
 
     return report
+  end
+
+end
+
+#
+# Awesome docker container analyzer
+#
+class ContainerAnalyzer
+
+  # Container states
+  GREEN = "green"
+  YELLOW = "yellow"
+  RED = "red"
+
+  def initialize(container, known_errors=[])
+    @container = container
+    @known_errors = known_errors
+  end
+
+  def analyze
+    begin
+      running_time = self.seconds_from_now(@container.json["State"]["StartedAt"])
+      log_data = self.check_log_messages(@container, ACTUAL_TIME)
+
+      # Determine the state of the container
+      state, message = self.analyze_metrics(@container, running_time, log_data)
+
+    rescue Exception => e
+      state = RED
+      message = e.message
+
+      puts e.message
+      puts e.backtrace.inspect
+    end
+
+    return {"state" => state, "message" => message}
   end
 
   def analyze_metrics(c, running_time, log_data)
@@ -98,20 +123,12 @@ class DockerMonitor
       state = RED
       message = log_data["error"]
 
-    elsif running_time < @actual_time
+    elsif running_time < ACTUAL_TIME
       state = YELLOW
       message = "Container recently rebooted"
     end
 
     return state, message
-  end
-
-  # Convert string date into an amount of seconds from now
-  def seconds_from_now(date_str)
-    date = DateTime.parse(date_str)
-    seconds = ((DateTime.now.new_offset(0) - date.new_offset(0)) * 24 * 60 * 60).to_i
-
-    return seconds
   end
 
   # Check if container's logs have errors
@@ -160,6 +177,14 @@ class DockerMonitor
     end
 
     return log_data
+  end
+
+  # Convert string date into an amount of seconds from now
+  def seconds_from_now(date_str)
+    date = DateTime.parse(date_str)
+    seconds = ((DateTime.now.new_offset(0) - date.new_offset(0)) * 24 * 60 * 60).to_i
+
+    return seconds
   end
 
 end

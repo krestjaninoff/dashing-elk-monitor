@@ -1,7 +1,8 @@
-require './lib/docker-api-client.rb'
+require './lib/docker-monitor.rb'
 
-
-### Configuration
+#
+# Configuration
+#
 containers = []
 File.read("dashboards/docker-monitor.erb").each_line do |line|
   next if !(line.include? "data-container")
@@ -11,6 +12,9 @@ File.read("dashboards/docker-monitor.erb").each_line do |line|
 end
 monitor = DockerMonitor.new(containers)
 
+#
+# Job scheduler
+#
 SCHEDULER.every '60s', :first_in => 0 do |job|
   begin
     reports = monitor.check
