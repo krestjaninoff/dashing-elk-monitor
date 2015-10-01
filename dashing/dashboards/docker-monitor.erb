@@ -1,29 +1,29 @@
-<!--script type='text/javascript'>
+<script type='text/javascript'>
 $(function() {
-  Dashing.weight = 1024
-  Dashing.height = 768
+  Dashing.weight = 1280
+  Dashing.height = 1024
 
   Dashing.numColumns = 2
-  Dashing.numRows = 3
+  Dashing.numRows = 2
 
   Dashing.widget_base_dimensions = [(Dashing.weight - 10 * (1 + Dashing.numColumns)) / Dashing.numColumns - 10, (Dashing.height - 10 * (1 + Dashing.numRows)) / Dashing.numRows - 8]
 });
-</script-->
+</script>
 
 <% content_for :title do %>Docker containers<% end %>
 <div class="gridster">
   <ul>
-    <li data-row="1" data-col="1" data-sizex="2" data-sizey="1">
+    <li data-row="1" data-col="1" data-sizex="1" data-sizey="1">
       <div data-view="Docker" data-id="docker-corps-profiles-api" data-container="corps-profiles-api"></div>
     </li>
-    <li data-row="1" data-col="2" data-sizex="2" data-sizey="1">
+    <li data-row="1" data-col="2" data-sizex="1" data-sizey="1">
       <div data-view="Docker" data-id="docker-corps-organizations-api" data-container="corps-organizations-api"></div>
     </li>
 
-    <li data-row="2" data-col="1" data-sizex="2" data-sizey="1">
+    <li data-row="2" data-col="1" data-sizex="1" data-sizey="1">
       <div data-view="Docker" data-id="docker-corps-contractors-api" data-container="corps-contractors-api"></div>
     </li>
-    <li data-row="2" data-col="2" data-sizex="2" data-sizey="1">
+    <li data-row="2" data-col="2" data-sizex="1" data-sizey="1">
       <div data-view="Docker" data-id="docker-corps-payments-api" data-container="corps-payments-api"></div>
     </li>
 </div>
