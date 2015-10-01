@@ -89,6 +89,8 @@ class ContainerAnalyzer
   end
 
   def analyze
+    start_time = Time.now.to_i
+
     begin
       running_time = self.seconds_from_now(@container.json["State"]["StartedAt"])
       log_data = self.check_log_messages(@container, ACTUAL_TIME)
@@ -104,7 +106,8 @@ class ContainerAnalyzer
       puts e.backtrace.inspect
     end
 
-    return {"state" => state, "message" => message}
+    exec_time = Time.now.to_i - start_time
+    return {"state" => state, "message" => message, "exec_time" => exec_time}
   end
 
   def analyze_metrics(c, running_time, log_data)
@@ -143,8 +146,8 @@ class ContainerAnalyzer
       container.logs(stdout: true, stderr: true, timestamps: true, tail: 2000).each_line do |l|
 
         # Retrieve date (docker returns logs with some garbage in the beginning of the lines,
-        # so we have to drop all the data before 201X)
-        log_time = DateTime.parse(l.gsub(/^[^2]*/, "").split(/\s/)[0])
+        # so we have to drop all the data before 20XX)
+        log_time = DateTime.parse(l.gsub(/^.*(?=(20\d{2}-))/, "").split(/\s/)[0])
         seconds = ((DateTime.now.new_offset(0) - log_time.new_offset(0)) * 24 * 60 * 60).to_i
 
         # Check if the message is not too old and not in the list of known errors
