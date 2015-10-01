@@ -22,5 +22,6 @@ We need that to request docker's API.
 Important, the docker socket must not be mount under `var` directory: https://github.com/docker/docker/issues/5125
 
 ### Building
-* Build the image: `docker build -t krestjaninoff/docker-monitor:0.0.1 .`
-* Start the container: `docker run -d -v /path/to/known.errors:/known.errors -v /var/run/docker.sock:/tmp/docker.sock -p 8080:3030 --name docker-monitor krestjaninoff/docker-monitor:0.0.1`
+* Build the image: `docker build -t docker.moscow.alfaintra.net/docker-monitor:latest .`
+* Push the image: `docker push docker.moscow.alfaintra.net/docker-monitor:latest`
+* Start the container: `docker run -d -v /path/to/known.errors:/known.errors -v /var/run/docker.sock:/tmp/docker.sock -p 6666:3030 --name docker-monitor docker.moscow.alfaintra.net/docker-monitor:latest`
