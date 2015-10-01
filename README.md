@@ -1,6 +1,6 @@
 ###Docker monitor extension for Dashing
 
-The project is under construction.
+**The project is under construction**.
 
 Inspired by https://github.com/swipely/docker-api and https://github.com/Shopify/dashing
 
@@ -15,12 +15,12 @@ At the moment you have to configure your containers in both dashboards/docker.er
 and lib/docker-api-client.rb (under "dashing" dir). That will be fixed one day.
 
 ### Running as a Docker container
-The container must be launched with `-v /var/run/docker.sock:/var/run/docker.sock --privileged
+The container must be launched with `-v /var/run/docker.sock:/tmp/docker.sock`
 mount (assuming that the docker instance on the host machine uses this socket).
 We need that to request docker's API.
 
+Important, the docker socket must not be mount under `var` directory: https://github.com/docker/docker/issues/5125
+
 ### Building
 * Build the image: `docker build -t krestjaninoff/docker-monitor:0.0.1 .`
-* Start the container: `docker run -d -v /var/run/docker.sock:/tmp/docker.sock -p 8080:3030 --name docker-monitor krestjaninoff/docker-monitor:0.0.1`
-
-Important, the docker socket must not be mount under `var` directory: https://github.com/docker/docker/issues/5125
+* Start the container: `docker run -d -v /path/to/known.errors:/known.errors -v /var/run/docker.sock:/tmp/docker.sock -p 8080:3030 --name docker-monitor krestjaninoff/docker-monitor:0.0.1`

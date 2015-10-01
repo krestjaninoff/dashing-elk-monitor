@@ -1,11 +1,20 @@
-require './lib/docker-api-client.rb'
+require './lib/docker-monitor.rb'
 
+#
+# Configuration
+#
+containers = []
+File.read("dashboards/docker-monitor.erb").each_line do |line|
+  next if !(line.include? "data-container")
 
-### Configuration
-containers = ["corps-profiles-api", "corps-organizations-api", "corps-contractors-api",
-  "corps-payments-api", "corps-accounts-api", "corps-catalogs-api"]
+  container = line.scan(/data-container="([^"]*)"/).last.first
+  containers.push container
+end
 monitor = DockerMonitor.new(containers)
 
+#
+# Job scheduler
+#
 SCHEDULER.every '60s', :first_in => 0 do |job|
   begin
     reports = monitor.check
@@ -13,7 +22,7 @@ SCHEDULER.every '60s', :first_in => 0 do |job|
     if reports
       reports.each do |container, report|
         send_event("docker-" + container, state: report["state"], message: report["message"])
-        puts "Message sent: " + "docker-" + container + " / " + report["state"]
+        puts "Message sent: " + "docker-" + container + " / " + report["state"] + ": " + (report["message"] || "ok")
       end
     end
 
