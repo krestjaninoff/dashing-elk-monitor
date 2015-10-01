@@ -143,7 +143,7 @@ class ContainerAnalyzer
 
     # Get container's logs string by string
     begin
-      container.logs(stdout: true, stderr: true, timestamps: true, tail: 2000).each_line do |l|
+      container.logs(stdout: true, stderr: true, timestamps: true, tail: 10000).each_line do |l|
 
         # Retrieve date (docker returns logs with some garbage in the beginning of the lines,
         # so we have to drop all the data before 20XX)
