@@ -24,4 +24,4 @@ Important, the docker socket must not be mount under `var` directory: https://gi
 ### Building
 * Build the image: `docker build -t docker.moscow.alfaintra.net/docker-monitor:latest .`
 * Push the image: `docker push docker.moscow.alfaintra.net/docker-monitor:latest`
-* Start the container: `docker run -d -v /path/to/known.errors:/known.errors -v /var/run/docker.sock:/tmp/docker.sock -p 6666:3030 --name docker-monitor docker.moscow.alfaintra.net/docker-monitor:latest`
+* Start the container: `docker run -d -v /path/to/known.errors:/known.errors -v /var/run/docker.sock:/tmp/docker.sock -p 3030:3030 --name docker-monitor docker.moscow.alfaintra.net/docker-monitor:latest`
