@@ -24,5 +24,5 @@ Important, the docker socket must not be mount under `var` directory: https://gi
 ### Building
 * Build the image: `docker build -t krestjaninoff/docker-monitor:0.0.1 .`
 * Push the image: `docker push krestjaninoff/docker-monitor:0.0.1 .`
-* Start the container: `docker run -d -v /path/to/dashboard.erb:/docker-monitor/dashboards/dashboard.erb -v /path/to/known.errors:/known.errors -v /var/run/docker.sock:/tmp/docker.sock -p 8765:3030 --name docker-monitor krestjaninoff/docker-monitor:0.0.1`
+* Start the container: `docker run -d -v /path/to/dashboard.erb:/docker-monitor/dashboards/dashboard.erb -v /path/to/known.errors:/known.errors -v /var/run/docker.sock:/tmp/docker.sock --memory=256m -p 3030:3030 --name docker-monitor krestjaninoff/docker-monitor:0.0.1`
 * Add the timezone if necessary (-e "TZ=Europe/Moscow")
