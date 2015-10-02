@@ -9,7 +9,7 @@ Docker.validate_version!
 #
 # A time period during which an event (log error, container restart) can be considered as actual
 #
-ACTUAL_TIME = 15 * 60
+ACTUAL_TIME = 60 * 60
 
 #
 # Awesome Docker monitor
