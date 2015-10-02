@@ -24,5 +24,5 @@ Important, the docker socket must not be mount under `var` directory: https://gi
 ### Building
 * Build the image: `docker build -t docker.moscow.alfaintra.net/docker-monitor:latest .`
 * Push the image: `docker push docker.moscow.alfaintra.net/docker-monitor:latest`
-* Start the container: `docker run -d -v /home/dockeradm/docker-monitor/known.errors:/known.errors -v /var/run/docker.sock:/tmp/docker.sock -p 3030:3030 -e "TZ=Europe/Moscow" --name docker-monitor docker.moscow.alfaintra.net/docker-monitor:latest`
+* Start the container: `docker run -d -v /home/dockeradm/docker-monitor/known.errors:/known.errors -v /var/run/docker.sock:/tmp/docker.sock -p 3030:3030 -e "TZ=Europe/Moscow" --memory=256m --name docker-monitor docker.moscow.alfaintra.net/docker-monitor:latest`
 * Add the timezone if necessary (-e "TZ=Europe/Moscow")
