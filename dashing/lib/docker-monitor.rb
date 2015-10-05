@@ -145,13 +145,16 @@ class ContainerAnalyzer
     begin
       container.logs(stdout: true, stderr: true, timestamps: true, tail: 10000).each_line do |l|
 
+        # Filter out the known errors
+        next if (@known_errors.any? { |error| l.include? (error) })
+
         # Retrieve date (docker returns logs with some garbage in the beginning of the lines,
         # so we have to drop all the data before 20XX)
         log_time = DateTime.parse(l.gsub(/^.*(?=(20\d{2}-))/, "").split(/\s/)[0])
         seconds = ((DateTime.now.new_offset(0) - log_time.new_offset(0)) * 24 * 60 * 60).to_i
 
         # Check if the message is not too old and not in the list of known errors
-        if seconds < actual_time && !(@known_errors.any? { |error| l.include? (error) })
+        if seconds < actual_time
 
           # Check message's loggin level
           if l.include? " WARN "
