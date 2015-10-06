@@ -37,4 +37,6 @@ SCHEDULER.every '60s', :first_in => 0 do |job|
       send_event("docker-" + container, state: "unknown", message: nil)
     end
   end
+
+  $stdout.flush
 end
