@@ -142,15 +142,17 @@ class ContainerAnalyzer
     msg_pattern = /^[^\]]*\]\s/ # everything from the beginning till the first ]
 
     # Get container's logs string by string
+    currL = nil
     begin
       container.logs(stdout: true, stderr: true, timestamps: true, tail: 2000).each_line do |l|
+        currL = l
 
         # Pass the known errors
         next if (@known_errors.any? { |error| l.include? (error) })
 
-        # Retrieve date (docker returns logs with some garbage in the beginning of the lines,
-        # so we have to drop all the data before 20XX)
-        log_time = DateTime.parse(l.gsub(/^.*(?=(20\d{2}-))/, "").split(/\s/)[0])
+        # Retrieve date (docker returns logs with a garbage before dates, so we have to workaround that - to be fixed)
+        #log_time = DateTime.parse(l.gsub(/^.*(?=(20\d{2}-))/, "").split(/\s/)[0])
+        log_time = DateTime.parse(l.gsub(/^[^2]*/, "").to_s[0, 19])
         seconds = ((DateTime.now.new_offset(0) - log_time.new_offset(0)) * 24 * 60 * 60).to_i
 
         # Check if the message is not too old
@@ -171,6 +173,7 @@ class ContainerAnalyzer
       last_warn = "Unparsable logs"
 
       puts e.message
+      puts currL
       puts e.backtrace.inspect
     end
 
