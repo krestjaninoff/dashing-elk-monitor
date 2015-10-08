@@ -147,6 +147,10 @@ class ContainerAnalyzer
       container.logs(stdout: true, stderr: true, timestamps: true, tail: 2000).each_line do |l|
         currL = l
 
+        # A tricky way to avoid invalid symbols from Docker
+        l = l.gsub(/[\x80-\xff]/, "")
+        next if l.size < 30
+
         # Pass the known errors
         next if (@known_errors.any? { |error| l.include? (error) })
 
