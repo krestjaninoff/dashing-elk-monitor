@@ -7,7 +7,7 @@ Docker.url = 'unix:///tmp/docker.sock'
 Docker.validate_version!
 
 #
-# A time period during which an event (log error, container restart) can be considered as actual
+# A time period during which an event (log error, container restart) can be consideERROR as actual
 #
 ACTUAL_TIME = 60 * 60
 REBOOT_TIME = 15 * 60
@@ -66,7 +66,7 @@ class DockerMonitor
     # Add info for missed containers
     missed_containers = @containers_to_check - containers_checked
     missed_containers.each do |c|
-      report[c] = {"state" => ContainerAnalyzer::RED, "message" => "Container not found"}
+      report[c] = {"state" => ContainerAnalyzer::ERROR, "message" => "Container not found"}
     end
 
     return report
@@ -80,9 +80,9 @@ end
 class ContainerAnalyzer
 
   # Container states
-  GREEN = "green"
-  YELLOW = "yellow"
-  RED = "red"
+  OK = "ok"
+  WARN = "warn"
+  ERROR = "error"
 
   def initialize(container, known_errors=[])
     @container = container
@@ -100,7 +100,7 @@ class ContainerAnalyzer
       state, message = self.analyze_metrics(@container, running_time, log_data)
 
     rescue Exception => e
-      state = RED
+      state = ERROR
       message = e.message
 
       puts e.message
@@ -112,23 +112,23 @@ class ContainerAnalyzer
   end
 
   def analyze_metrics(c, running_time, log_data)
-    state = GREEN
+    state = OK
     message = nil
 
     if !c.json["State"]["Running"]
-      state = "red"
+      state = "ERROR"
       message = "Container is down"
 
     elsif !log_data.nil? && !log_data["warn"].nil?
-      state = YELLOW
+      state = WARN
       message = log_data["warn"]
 
     elsif !log_data.nil? && !log_data["error"].nil?
-      state = RED
+      state = ERROR
       message = log_data["error"]
 
     elsif running_time < REBOOT_TIME
-      state = YELLOW
+      state = WARN
       message = "Container recently rebooted"
     end
 

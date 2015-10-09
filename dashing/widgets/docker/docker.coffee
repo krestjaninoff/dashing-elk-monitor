@@ -14,13 +14,13 @@ class Dashing.Docker extends Dashing.Widget
   onData: (data) ->
     #console.log(data)
 
-    if data.state == "green"
+    if data.state == "ok"
       $(@node).fadeOut().css('background-color', @green).fadeIn()
 
-    else if data.state == "yellow"
+    else if data.state == "warn"
       $(@node).fadeOut().css('background-color', @yellow).fadeIn()
 
-    else if data.state == "red"
+    else if data.state == "error"
       $(@node).fadeOut().css('background-color', @red).fadeIn()
 
     else if data.state == "unknown"

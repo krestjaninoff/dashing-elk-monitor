@@ -1,16 +1,16 @@
-require './lib/docker-monitor.rb'
+require './lib/elk-monitor.rb'
 
 #
 # Configuration
 #
 containers = []
-File.read("dashboards/docker-monitor.erb").each_line do |line|
+File.read("dashboards/app.erb").each_line do |line|
   next if !(line.include? "data-container")
 
   container = line.scan(/data-container="([^"]*)"/).last.first
   containers.push container
 end
-monitor = DockerMonitor.new(containers)
+monitor = ElkMonitor.new(containers)
 
 #
 # Job scheduler
@@ -21,7 +21,7 @@ SCHEDULER.every '60s', :first_in => 0 do |job|
 
     if reports
       reports.each do |container, report|
-        send_event("docker-" + container, state: report["state"], message: report["message"])
+        send_event("docker-" + container, state: report["state"], message: report["message"], info: report["info"])
         puts "Message sent: " + "docker-" + container + " / " + report["state"] +
           " (" + report["exec_time"].to_s + " sec): " + (report["message"] || "ok")
       end
@@ -34,7 +34,7 @@ SCHEDULER.every '60s', :first_in => 0 do |job|
     puts e.backtrace.inspect
 
     containers.each do |container|
-      send_event("docker-" + container, state: "unknown", message: nil)
+      send_event("docker-" + container, state: "unknown", message: nil, info: nil)
     end
   end
 
