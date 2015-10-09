@@ -95,7 +95,7 @@ module Elk
       if !known_errors.empty?
 
         known_errors.each do |e|
-          known_errors_query += %q["must_not" : { "match": { "message": "] + e +  %q[" } },]
+          known_errors_query += %q["must_not" : { "query_string": { "default_field" : "message", "minimum_should_match": "100%", "query": "] + e + %q[" } },]
         end
         known_errors_query = known_errors_query.chomp(',')
 
@@ -121,7 +121,7 @@ module Elk
           "size" : 1
         }
         EOS
-
+puts query
       return query
     end
 
