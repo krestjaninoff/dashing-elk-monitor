@@ -1,16 +1,16 @@
-require './lib/elk-monitor.rb'
+require './lib/elk_monitor.rb'
 
 #
 # Configuration
 #
 containers = []
-File.read("dashboards/app.erb").each_line do |line|
+File.read("dashboards/dashboard.erb").each_line do |line|
   next if !(line.include? "data-container")
 
   container = line.scan(/data-container="([^"]*)"/).last.first
   containers.push container
 end
-monitor = ElkMonitor.new(containers)
+monitor = Elk::Monitor.new(containers)
 
 #
 # Job scheduler
