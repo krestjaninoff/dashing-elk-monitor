@@ -6,7 +6,7 @@ module Elk
   #
   # Settings
   #
-  ELK_HOST = ENV['ELK_HOST'] || 'manlog1'
+  ELK_HOST = ENV['ELK_HOST'] || 'elastic-host'
   ELK_PORT = ENV['ELK_PORT'] || '9200'
   LOG_ACTUAL_TIME = ENV['LOG_ACTUAL_TIME'] || '60m'
 
