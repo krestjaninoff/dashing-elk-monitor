@@ -121,7 +121,7 @@ module Elk
           "size" : 1
         }
         EOS
-puts query
+
       return query
     end
 
