@@ -1,16 +1,22 @@
 require './lib/elk_monitor.rb'
 require './lib/err_consul.rb'
+require './lib/err_file.rb'
 
 #
 # Configuration
 #
 ELK_HOST = ENV['ELK_HOST'] || 'elastic-host'
 ELK_PORT = ENV['ELK_PORT'] || '9200'
-LOG_ACTUAL_TIME = ENV['ELK_LOG_ACTUAL_TIME'] || '60m'
+ELK_LOG_ACTUAL_TIME = ENV['ELK_LOG_ACTUAL_TIME'] || '60m'
+
+DEM_ERRORS_SOURCE = ENV['DEM_ERRORS_SOURCE'] || 'file'
 
 CONSUL_KV_API = ENV['CONSUL_KV_API'] || 'http://consul-host/v1/kv'
 CONSUL_DC = ENV['CONSUL_DC'] || 'dc1'
 CONSUL_ERRORS_PATH = ENV['CONSUL_ERRORS_PATH'] || 'path/to/errors'
+
+puts "Configuration: %s, %s, %s, %s, %s, %s, %s" %
+ [ELK_HOST, ELK_PORT, ELK_LOG_ACTUAL_TIME, DEM_ERRORS_SOURCE, CONSUL_KV_API, CONSUL_DC, CONSUL_ERRORS_PATH]
 
 services = []
 File.read("dashboards/dashboard.erb").each_line do |line|
@@ -20,8 +26,14 @@ File.read("dashboards/dashboard.erb").each_line do |line|
   services.push service
 end
 
-err_provider = Err::Consul.new(CONSUL_KV_API, CONSUL_ERRORS_PATH, CONSUL_DC)
-monitor = Elk::Monitor.new(ELK_HOST, services, err_provider, LOG_ACTUAL_TIME, ELK_PORT)
+err_provider = nil
+if DEM_ERRORS_SOURCE.downcase == 'consul'
+  err_provider = Err::Consul.new(CONSUL_KV_API, CONSUL_ERRORS_PATH, CONSUL_DC)
+else
+  err_provider = Err::File.new
+end
+
+monitor = Elk::Monitor.new(ELK_HOST, services, err_provider, ELK_LOG_ACTUAL_TIME, ELK_PORT)
 
 #
 # Job scheduler

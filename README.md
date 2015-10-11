@@ -11,8 +11,8 @@ It assumes that you are using default [LogStash appender](https://github.com/log
  with a default LogStash mapping. Also, it wants you to add an additional field,
  which allows us to distinguish one service from another - `app.id` (see `elk-client.rb` for ES query example).
 
-It uses Consul as a key/value storage for known errors. The only reason for that - we already use it for another purposes, plus
- Consul has a nice and simple UI (what is very important if you want your QA to manage the issues instead of you).
+You can use two different backends to persist and manage the list of known errors: a plain text file and Consul key/value
+  storage. Why Consul? Just because we already have it in our infrastructure, it supports k/v and has a pretty UI (what is very important if you want your QA to manage the issues instead of you).
 
 Inspired by https://github.com/Shopify/dashing
 
@@ -37,6 +37,7 @@ All other settings must be set up through ENV variables:
   * ELK_HOST - ElasticSearch host ('elk-host.com')
   * ELK_PORT - ElasticSearch port ('9200')
   * ELK_LOG_ACTUAL_TIME - Time period for analyzing ('60m')
+  * DEM_ERRORS_SOURCE - Source of known errors, could be either 'file' or 'consul' (default is 'file')
   * CONSUL_KV_API - Consul key/value API url ('http://consul-host/v1/kv')
   * CONSUL_DC - Consul datacenter ('dc1')
   * CONSUL_ERRORS_PATH - Path to errors in Consul storage ('path/to/errors')
@@ -57,6 +58,7 @@ docker run -d
   -e ELK_HOST=elk-host.com
   -e ELK_PORT=9200
   -e ELK_LOG_ACTUAL_TIME=60m
+  -e DEM_ERRORS_SOURCE=consul
   -e CONSUL_KV_API=http://consul-host/v1/kv
   -e CONSUL_DC=dc1
   -e CONSUL_ERRORS_PATH=path/to/errors
