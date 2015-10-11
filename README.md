@@ -66,7 +66,7 @@ docker run -d
   --memory=256m
   -p 3030:3030
 
-  --name docker-monitor
+  --name dashing-elk-monitor
   krestjaninoff/dashing-elk-monitor:latest`
 ```
 
