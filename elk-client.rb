@@ -3,12 +3,10 @@
 require 'net/http'
 require 'json'
 
-@container = "manrest1:corps-payments-api"
+@container = "app-name"
 @ttl = "60m"
 
-
-@post_ws = "/logstash-2015.10.10/rest-api/_search"
-
+@post_ws = "/logstash-2015.10.10/log-type/_search"
 @query = <<-EOS
 {
   "filter" : {
