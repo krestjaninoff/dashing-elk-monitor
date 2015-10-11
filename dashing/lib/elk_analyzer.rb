@@ -16,7 +16,7 @@ module Elk
     WARN = "warn"
     ERROR = "error"
 
-    def initialize(container, known_errors=[], host, port, ttl)
+    def initialize(container, known_errors, host, port, ttl)
       @container = container
       @known_errors = known_errors
 
@@ -91,6 +91,7 @@ module Elk
 
     def build_logs_query(container, known_errors, ttl)
 
+      # prepare a part with known errors filter
       known_errors_query = ''
       if !known_errors.empty?
 
@@ -102,6 +103,7 @@ module Elk
         known_errors_query = %q["query" : { "bool" : {] + known_errors_query + %q[} },]
       end
 
+      # build the query
       query = <<-EOS
         {
           #{known_errors_query}

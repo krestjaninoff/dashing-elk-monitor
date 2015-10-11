@@ -4,49 +4,36 @@ require_relative './elk_analyzer.rb'
 module Elk
 
   #
-  # Settings
-  #
-  ELK_HOST = ENV['ELK_HOST'] || 'elastic-host'
-  ELK_PORT = ENV['ELK_PORT'] || '9200'
-  LOG_ACTUAL_TIME = ENV['LOG_ACTUAL_TIME'] || '60m'
-
-
-  #
   # Awesome ELK monitor
   #
   class Monitor
 
     # Dummy constructor
-    def initialize(containers = [])
-      @host = ELK_HOST
-      @port = ELK_PORT
-      @ttl = LOG_ACTUAL_TIME
+    def initialize(elk_host, containers, errors_provider, ttl='60m', elk_port = '9200')
+      @host = elk_host
+      @port = elk_port
+      @ttl = ttl
 
       @containers_to_check = containers
       puts "Containers: \n---\n" + @containers_to_check.join("\n") + "\n---\n"
 
-      @known_errors = []
-      begin
-        File.read("../known.errors").each_line do |line|
-          error = line.tr("\n","")
-          @known_errors.push error if !error.empty?
-        end
-        puts "Known errors: \n---\n" + @known_errors.join("\n") + "\n---\n"
-      rescue Exception => e
-        puts "Registry with known errors not found"
-      end
+      @errors_provider = errors_provider
+      puts 'Elk::Monitor sucessfully constructed'
     end
 
     # Main check
     def check
       report = Hash.new
 
+      # Get list of knonw errors
+      known_errors = @errors_provider.get_known_errors
+
       # Get the list of available containers
       threads = Hash.new
       @containers_to_check.each do |c|
 
         # Analyze containers data in parallel
-        threads[c] = Thread.new(c, @known_errors, @host, @port, @ttl){ |c, errs, host, port, ttl|
+        threads[c] = Thread.new(c, known_errors, @host, @port, @ttl){ |c, errs, host, port, ttl|
            Thread.current[:report] = Elk::Analyzer.new(c, errs, host, port, ttl).analyze }
       end
 
@@ -65,6 +52,6 @@ end
 
 # Entry point for testing the script
 if __FILE__ == $0
-  monitor = Elk::Monitor.new(["good-container", "bad-container", "missed-container"])
+  monitor = Elk::Monitor.new(''["good-container", "bad-container", "missed-container"], [])
   puts monitor.check
 end

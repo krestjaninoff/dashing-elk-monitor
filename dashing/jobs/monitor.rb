@@ -1,8 +1,17 @@
 require './lib/elk_monitor.rb'
+require './lib/err_consul.rb'
 
 #
 # Configuration
 #
+ELK_HOST = ENV['ELK_HOST'] || 'elastic-host'
+ELK_PORT = ENV['ELK_PORT'] || '9200'
+LOG_ACTUAL_TIME = ENV['LOG_ACTUAL_TIME'] || '60m'
+
+CONSUL_KV_API = ENV['CONSUL_KV_API'] || 'http://consul-host/v1/kv'
+CONSUL_DC = ENV['CONSUL_DC'] || 'dc1'
+CONSUL_ERRORS_PATH = ENV['CONSUL_ERRORS_PATH'] || 'path/to/errors'
+
 containers = []
 File.read("dashboards/dashboard.erb").each_line do |line|
   next if !(line.include? "data-container")
@@ -10,7 +19,9 @@ File.read("dashboards/dashboard.erb").each_line do |line|
   container = line.scan(/data-container="([^"]*)"/).last.first
   containers.push container
 end
-monitor = Elk::Monitor.new(containers)
+
+err_provider = Err::Consul.new(CONSUL_KV_API, CONSUL_ERRORS_PATH, CONSUL_DC)
+monitor = Elk::Monitor.new(ELK_HOST, containers, err_provider, LOG_ACTUAL_TIME, ELK_PORT)
 
 #
 # Job scheduler
