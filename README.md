@@ -36,7 +36,7 @@ All other settings must be set up through ENV variables:
 
   * ELK_HOST - ElasticSearch host ('elk-host.com')
   * ELK_PORT - ElasticSearch port ('9200')
-  * LOG_ACTUAL_TIME - Time period for analyzing ('60m')
+  * ELK_LOG_ACTUAL_TIME - Time period for analyzing ('60m')
   * CONSUL_KV_API - Consul key/value API url ('http://consul-host/v1/kv')
   * CONSUL_DC - Consul datacenter ('dc1')
   * CONSUL_ERRORS_PATH - Path to errors in Consul storage ('path/to/errors')
@@ -56,7 +56,7 @@ docker run -d
 
   -e ELK_HOST=elk-host.com
   -e ELK_PORT=9200
-  -e LOG_ACTUAL_TIME=60m
+  -e ELK_LOG_ACTUAL_TIME=60m
   -e CONSUL_KV_API=http://consul-host/v1/kv
   -e CONSUL_DC=dc1
   -e CONSUL_ERRORS_PATH=path/to/errors

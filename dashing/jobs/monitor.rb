@@ -6,7 +6,7 @@ require './lib/err_consul.rb'
 #
 ELK_HOST = ENV['ELK_HOST'] || 'elastic-host'
 ELK_PORT = ENV['ELK_PORT'] || '9200'
-LOG_ACTUAL_TIME = ENV['LOG_ACTUAL_TIME'] || '60m'
+LOG_ACTUAL_TIME = ENV['ELK_LOG_ACTUAL_TIME'] || '60m'
 
 CONSUL_KV_API = ENV['CONSUL_KV_API'] || 'http://consul-host/v1/kv'
 CONSUL_DC = ENV['CONSUL_DC'] || 'dc1'
