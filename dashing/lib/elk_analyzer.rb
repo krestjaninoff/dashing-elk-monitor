@@ -6,18 +6,18 @@ require 'json'
 module Elk
 
   #
-  # Awesome ELK container analyzer
+  # Awesome ELK service analyzer
   #
   class Analyzer
 
-    # Container states
+    # service states
     UNKNOWN = "unknown"
     OK = "ok"
     WARN = "warn"
     ERROR = "error"
 
-    def initialize(container, known_errors, host, port, ttl)
-      @container = container
+    def initialize(service, known_errors, host, port, ttl)
+      @service = service
       @known_errors = known_errors
 
       @host = host
@@ -29,7 +29,7 @@ module Elk
       start_time = Time.now.to_i
 
       begin
-        state, message, details = self.check_log_messages(@container, @ttl)
+        state, message, details = self.check_log_messages(@service, @ttl)
 
       rescue Exception => e
         state = ERROR
@@ -44,13 +44,13 @@ module Elk
       return {"state" => state, "message" => message, "details" => details, "exec_time" => exec_time}
     end
 
-    # Check if container's logs have errors
-    def check_log_messages(container, ttl)
+    # Check if service's logs have errors
+    def check_log_messages(service, ttl)
       log_data = nil
 
-      # Get container's logs string by string
+      # Get service's logs string by string
       begin
-        logs = get_elk_data(build_logs_query(container, @known_errors, ttl))
+        logs = get_elk_data(build_logs_query(service, @known_errors, ttl))
 
         if logs.nil?
           log_data = [UNKNOWN, "Monitoring error", nil]
@@ -69,7 +69,7 @@ module Elk
           end
 
         else
-          logs = get_elk_data(build_alive_query(container, ttl))
+          logs = get_elk_data(build_alive_query(service, ttl))
 
           if logs['total'] > 0
             log_data = [OK, "OK", nil]
@@ -89,7 +89,7 @@ module Elk
       return log_data[0], log_data[1], log_data[2]
     end
 
-    def build_logs_query(container, known_errors, ttl)
+    def build_logs_query(service, known_errors, ttl)
 
       # prepare a part with known errors filter
       known_errors_query = ''
@@ -109,7 +109,7 @@ module Elk
           #{known_errors_query}
           "filter" : {
               "and" : [
-                  { "term" : { "app_id.raw" : "#{container}" } },
+                  { "term" : { "app_id.raw" : "#{service}" } },
                   { "or" : [
                     { "term" : { "level.raw" : "ERROR" } },
                     { "term" : { "level.raw" : "WARN" } }
@@ -127,12 +127,12 @@ module Elk
       return query
     end
 
-    def build_alive_query(container, ttl)
+    def build_alive_query(service, ttl)
       query = <<-EOS
         {
           "filter" : {
               "and" : [
-                  { "term" : { "app_id.raw" : "#{container}" } },
+                  { "term" : { "app_id.raw" : "#{service}" } },
                   { "range" : { "@timestamp" : { "gte": "now-#{ttl}" } } }
               ]
           },
@@ -143,7 +143,7 @@ module Elk
       return query
     end
 
-    # Check if container's logs have errors
+    # Check if service's logs have errors
     def get_elk_data(query)
       index = "logstash-" + Time.now.strftime("%Y.%m.%d")
       url = "/#{index}/rest-api/_search"

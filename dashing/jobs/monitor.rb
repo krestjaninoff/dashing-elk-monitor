@@ -12,16 +12,16 @@ CONSUL_KV_API = ENV['CONSUL_KV_API'] || 'http://consul-host/v1/kv'
 CONSUL_DC = ENV['CONSUL_DC'] || 'dc1'
 CONSUL_ERRORS_PATH = ENV['CONSUL_ERRORS_PATH'] || 'path/to/errors'
 
-containers = []
+services = []
 File.read("dashboards/dashboard.erb").each_line do |line|
-  next if !(line.include? "data-container")
+  next if !(line.include? "data-service")
 
-  container = line.scan(/data-container="([^"]*)"/).last.first
-  containers.push container
+  service = line.scan(/data-service="([^"]*)"/).last.first
+  services.push service
 end
 
 err_provider = Err::Consul.new(CONSUL_KV_API, CONSUL_ERRORS_PATH, CONSUL_DC)
-monitor = Elk::Monitor.new(ELK_HOST, containers, err_provider, LOG_ACTUAL_TIME, ELK_PORT)
+monitor = Elk::Monitor.new(ELK_HOST, services, err_provider, LOG_ACTUAL_TIME, ELK_PORT)
 
 #
 # Job scheduler
@@ -31,21 +31,22 @@ SCHEDULER.every '60s', :first_in => 0 do |job|
     reports = monitor.check
 
     if reports
-      reports.each do |container, report|
-        send_event("docker-" + container, state: report["state"], message: report["message"], info: report["info"])
-        puts "Message sent: " + "docker-" + container + " / " + report["state"] +
+      reports.each do |service, report|
+        send_event("service-" + service, state: report["state"], message: report["message"], info: report["info"])
+        puts "Message sent: " + "service-" + service + " / " + report["state"] +
           " (" + report["exec_time"].to_s + " sec): " + (report["message"] || "ok")
       end
     end
 
   rescue Exception => e
-    puts "\e[33mDocker monitor job has raised an error! Please check jobs/docker.rb file.\e[0m"
+    puts "\e[33mService monitor job has raised an error! Please check jobs/monitor.rb file.\e[0m"
 
     puts e.message
     puts e.backtrace.inspect
 
-    containers.each do |container|
-      send_event("docker-" + container, state: "unknown", message: nil, info: nil)
+    services.each do |service|
+      send_event("service-" + service, state: "unknown", message: nil, info: nil)
+      puts "Message sent: " + "service-" + service + " / unknown"
     end
   end
 

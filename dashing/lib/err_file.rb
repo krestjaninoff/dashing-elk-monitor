@@ -1,6 +1,13 @@
 #!/usr/bin/env ruby
 
 module Err
+
+  #
+  # File-based errors storage
+  #
+  # That's a good out-of-box solution for a quick start. But for production
+  # usage I woudle recommend some key/value storage with persistance and UI.
+  #
   class File
 
     def initialize

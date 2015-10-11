@@ -13,12 +13,10 @@ RUN apt-get update && apt-get install -y \
 
 RUN gem install \
   dashing \
-  bundler \
-  docker \
-  docker-api
+  bundler
 
-COPY dashing /docker-monitor
-WORKDIR /docker-monitor
+COPY dashing /dashing-elk-monitor
+WORKDIR /dashing-elk-monitor
 
 EXPOSE 3030
 

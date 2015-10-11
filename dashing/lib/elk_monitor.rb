@@ -9,13 +9,13 @@ module Elk
   class Monitor
 
     # Dummy constructor
-    def initialize(elk_host, containers, errors_provider, ttl='60m', elk_port = '9200')
+    def initialize(elk_host, services, errors_provider, ttl='60m', elk_port = '9200')
       @host = elk_host
       @port = elk_port
       @ttl = ttl
 
-      @containers_to_check = containers
-      puts "Containers: \n---\n" + @containers_to_check.join("\n") + "\n---\n"
+      @services_to_check = services
+      puts "Services: \n---\n" + @services_to_check.join("\n") + "\n---\n"
 
       @errors_provider = errors_provider
       puts 'Elk::Monitor sucessfully constructed'
@@ -28,11 +28,11 @@ module Elk
       # Get list of knonw errors
       known_errors = @errors_provider.get_known_errors
 
-      # Get the list of available containers
+      # Get the list of available services
       threads = Hash.new
-      @containers_to_check.each do |c|
+      @services_to_check.each do |c|
 
-        # Analyze containers data in parallel
+        # Analyze services data in parallel
         threads[c] = Thread.new(c, known_errors, @host, @port, @ttl){ |c, errs, host, port, ttl|
            Thread.current[:report] = Elk::Analyzer.new(c, errs, host, port, ttl).analyze }
       end
@@ -52,6 +52,6 @@ end
 
 # Entry point for testing the script
 if __FILE__ == $0
-  monitor = Elk::Monitor.new(''["good-container", "bad-container", "missed-container"], [])
+  monitor = Elk::Monitor.new(''["good-service", "bad-service", "missed-service"], [])
   puts monitor.check
 end

@@ -3,6 +3,9 @@
 require 'net/http'
 require 'json'
 
+@host = "es-host.com"
+@port = 9200
+
 @container = "app-name"
 @ttl = "60m"
 

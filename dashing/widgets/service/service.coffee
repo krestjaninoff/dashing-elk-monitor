@@ -1,4 +1,4 @@
-class Dashing.Docker extends Dashing.Widget
+class Dashing.Service extends Dashing.Widget
 
   constructor: ->
     super

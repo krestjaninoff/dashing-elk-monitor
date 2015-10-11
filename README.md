@@ -1,44 +1,71 @@
-#Docker monitor extension for Dashing
+#A Dashing extension for ELK-based microservices monitoring
 
-Initially the idea of the project was about using Docker Api for retrieving all the monitoring data.
-But once we started to use it in production, we found that we have multiple docker hosts (in different DCs)
-and we want to observe all of our containers (for a specific app) on the same monitor.
+**Project is under construction**
 
-So, the project was refactored to use ELK (ElasticSearch + LogStash) storage as a logs backend.
-Old docker-related libs can be found under `lib.docker` folder (might be slightly damaged by refactoring).
+This is a simple Dashing extension which allows you to visualize LogStash'ed logs
+ of your application in simple and very effective way:
+
+![](http://trustmeiamadeveloper.com/content/images/2015/10/monitoring_small.jpg)
+
+It assumes that you are using default [LogStash appender](https://github.com/logstash/logstash-logback-encoder) for LogBack
+ with a default LogStash mapping. Also, it wants you to add an additional field,
+ which allows us to distinguish one service from another - `app.id` (see `elk-client.rb` for ES query example).
+
+It uses Consul as a key/value storage for known errors. The only reason for that - we already use it for another purposes, plus
+ Consul has a nice and simple UI (what is very important if you want your QA to manage the issues instead of you).
 
 Inspired by https://github.com/Shopify/dashing
 
+
 ### Installation
-0. You have to have docker and ruby installed locally: `apt-get install ruby`
-1. The following gems are required: `gem install dashing`
+The application can be assembled as a Docker container. But if you want to install it on your OS directly, do the following:
+
+0. Install Ruby: `apt-get install ruby-1.9.1`
+1. Add some gems: `gem install dashing`
 2. This project is a result of "dashing new" and "bundle" commands (so, you don't need to run them)
-3. To run this project go to "dashing" directory and launch "dashing start" command
+3. Go to "dashing" directory and run "dashing start" command
+4. ...
+5. PROFIT!!!
 
 
 ### Configuration
-The list of monitored containers is combined with the layout file - `dashboards/dashboard.erb`.
-For ElasticSearch settings see `lib/elk_monitor.rb`.
+The list of monitored services is combined with the layout file - `dashboards/dashboard.erb`.
+In case of Docker container, this file can be mounted from an external source.
 
+All other settings must be set up through ENV variables:
 
-### Using with Docker API
-Integration with Docker API is based on https://github.com/swipely/docker-api
-
-#### Installation
-0. You have to have docker and ruby installed locally: `apt-get install docker ruby`
-1. The following gems are required: `gem install dashing docker docker-api`
-
-#### Running as a Docker container
-The container must be launched with `-v /var/run/docker.sock:/tmp/docker.sock`
-mount (assuming that the docker instance on the host machine uses this socket).
-We need that to request docker's API.
-
-Important, the docker socket must not be mount under `var` directory: https://github.com/docker/docker/issues/5125
+  * ELK_HOST - ElasticSearch host ('elk-host.com')
+  * ELK_PORT - ElasticSearch port ('9200')
+  * LOG_ACTUAL_TIME - Time period for analyzing ('60m')
+  * CONSUL_KV_API - Consul key/value API url ('http://consul-host/v1/kv')
+  * CONSUL_DC - Consul datacenter ('dc1')
+  * CONSUL_ERRORS_PATH - Path to errors in Consul storage ('path/to/errors')
 
 
 ### Building
 
-  * Build the image: `docker build -t krestjaninoff/docker-monitor:0.0.1 .`
-  * Push the image: `docker push krestjaninoff/docker-monitor:0.0.1 .`
-  * Start the container: `docker run -d -v /path/to/dashboard.erb:/docker-monitor/dashboards/dashboard.erb -v /path/to/known.errors:/known.errors --memory=256m -p 3030:3030 --name docker-monitor krestjaninoff/docker-monitor:0.0.1`
-  * Add the timezone, if necessary (-e "TZ=Europe/Moscow")
+  * Build the image: `docker build -t krestjaninoff/dashing-elk-monitor:latest .`
+  * Push the image: `docker push krestjaninoff/dashing-elk-monitor:latest .`
+
+To start the container use the following command:
+
+```bash
+docker run -d
+  -v /path/to/dashboard.erb:/dashing-elk-monitor/dashboards/dashboard.erb
+  -v /path/to/known.errors:/known.errors
+
+  -e ELK_HOST=elk-host.com
+  -e ELK_PORT=9200
+  -e LOG_ACTUAL_TIME=60m
+  -e CONSUL_KV_API=http://consul-host/v1/kv
+  -e CONSUL_DC=dc1
+  -e CONSUL_ERRORS_PATH=path/to/errors
+
+  --memory=256m
+  -p 3030:3030
+
+  --name docker-monitor
+  krestjaninoff/dashing-elk-monitor:latest`
+```
+
+Add the timezone, if necessary (-e "TZ=Europe/Moscow")
