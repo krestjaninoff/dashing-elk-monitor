@@ -67,7 +67,7 @@ docker run -d
   -p 3030:3030
 
   --name dashing-elk-monitor
-  krestjaninoff/dashing-elk-monitor:latest`
+  krestjaninoff/dashing-elk-monitor:latest
 ```
 
 Add the timezone, if necessary (-e "TZ=Europe/Moscow")
