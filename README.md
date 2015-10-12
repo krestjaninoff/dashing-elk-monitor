@@ -51,23 +51,23 @@ All other settings must be set up through ENV variables:
 To start the container use the following command:
 
 ```bash
-docker run -d
-  -v /path/to/dashboard.erb:/dashing-elk-monitor/dashboards/dashboard.erb
-  -v /path/to/known.errors:/known.errors
-
-  -e ELK_HOST=elk-host.com
-  -e ELK_PORT=9200
-  -e ELK_LOG_ACTUAL_TIME=60m
-  -e DEM_ERRORS_SOURCE=consul
-  -e CONSUL_KV_API=http://consul-host/v1/kv
-  -e CONSUL_DC=dc1
-  -e CONSUL_ERRORS_PATH=path/to/errors
-
-  --memory=256m
-  -p 3030:3030
-
-  --name dashing-elk-monitor
-  krestjaninoff/dashing-elk-monitor:latest
+docker run -d \
+    -v /path/to/dashboard.erb:/dashing-elk-monitor/dashboards/dashboard.erb \
+    -v /path/to/known.errors:/known.errors \
+      \
+    -e ELK_HOST=elk-host.com \
+    -e ELK_PORT=9200 \
+    -e ELK_LOG_ACTUAL_TIME=60m \
+    -e DEM_ERRORS_SOURCE=file \
+    -e CONSUL_KV_API=http://consul-host/v1/kv \
+    -e CONSUL_DC=dc1 \
+    -e CONSUL_ERRORS_PATH=path/to/errors \
+      \
+    --memory=256m \
+    -p 3030:3030 \
+      \
+    --name dashing-elk-monitor \
+    krestjaninoff/dashing-elk-monitor:latest
 ```
 
 Add the timezone, if necessary (-e "TZ=Europe/Moscow")
