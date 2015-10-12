@@ -13,7 +13,8 @@ RUN apt-get update && apt-get install -y \
 
 RUN gem install \
   dashing \
-  bundler
+  bundler \
+  docker
 
 COPY dashing /dashing-elk-monitor
 WORKDIR /dashing-elk-monitor
