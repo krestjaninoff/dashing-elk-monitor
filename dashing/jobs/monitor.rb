@@ -1,6 +1,6 @@
 require './lib/elk_monitor.rb'
 require './lib/err_consul.rb'
-require './lib/err_file.rb'
+require './lib/err_local_file.rb'
 
 #
 # Configuration
@@ -30,7 +30,7 @@ err_provider = nil
 if DEM_ERRORS_SOURCE.downcase == 'consul'
   err_provider = Err::Consul.new(CONSUL_KV_API, CONSUL_ERRORS_PATH, CONSUL_DC)
 else
-  err_provider = Err::File.new
+  err_provider = Err::LocalFile.new
 end
 
 monitor = Elk::Monitor.new(ELK_HOST, services, err_provider, ELK_LOG_ACTUAL_TIME, ELK_PORT)
