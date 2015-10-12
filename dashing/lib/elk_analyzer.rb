@@ -29,19 +29,19 @@ module Elk
       start_time = Time.now.to_i
 
       begin
-        state, message, details = self.check_log_messages(@service, @ttl)
+        state, topic, details = self.check_log_messages(@service, @ttl)
 
       rescue Exception => e
-        state = ERROR
-        message = e.message
-        details = nil
+        state = UNKNOWN
+        topic = 'Internal error :('
+        details = e.message
 
         puts e.message
         puts e.backtrace.inspect
       end
 
       exec_time = Time.now.to_i - start_time
-      return {"state" => state, "message" => message, "details" => details, "exec_time" => exec_time}
+      return {"state" => state, "topic" => topic, "details" => details, "exec_time" => exec_time}
     end
 
     # Check if service's logs have errors
@@ -61,7 +61,7 @@ module Elk
           log_entry['logger_name'] = log_entry['_source']['logger_name'].split(".").last
           log_entry['message'] = log_entry['_source']['message'][0, 256]
 
-          if log_entry['level'] == 'WARN'
+          if log_entry['_source']['level'] == 'WARN'
             log_data = [WARN, log_entry['logger_name'], log_entry['message']]
 
           else

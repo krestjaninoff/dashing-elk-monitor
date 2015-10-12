@@ -44,9 +44,9 @@ SCHEDULER.every '60s', :first_in => 0 do |job|
 
     if reports
       reports.each do |service, report|
-        send_event("service-" + service, state: report["state"], message: report["message"], info: report["info"])
+        send_event("service-" + service, state: report["state"], topic: report["topic"], details: report["details"])
         puts "Message sent: " + "service-" + service + " / " + report["state"] +
-          " (" + report["exec_time"].to_s + " sec): " + (report["message"] || "ok")
+          " (" + report["exec_time"].to_s + " sec): " + (report["topic"] || "ok")
       end
     end
 
@@ -57,7 +57,7 @@ SCHEDULER.every '60s', :first_in => 0 do |job|
     puts e.backtrace.inspect
 
     services.each do |service|
-      send_event("service-" + service, state: "unknown", message: nil, info: nil)
+      send_event("service-" + service, state: "unknown", topic: nil, details: nil)
       puts "Message sent: " + "service-" + service + " / unknown"
     end
   end
