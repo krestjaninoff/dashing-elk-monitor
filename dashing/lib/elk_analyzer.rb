@@ -59,7 +59,7 @@ module Elk
 
           log_entry = logs['hits'][0]
           log_entry['logger_name'] = log_entry['_source']['logger_name'].split(".").last
-          log_entry['message'] = log_entry['_source']['message'][0, 256]
+          log_entry['message'] = log_entry['_source']['message'][0, 256].gsub(/\s+/, ' ')
 
           if log_entry['_source']['level'] == 'WARN'
             log_data = [WARN, log_entry['logger_name'], log_entry['message']]
