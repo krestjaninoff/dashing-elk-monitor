@@ -12,6 +12,8 @@ It assumes that you use the default [LogStash appender](https://github.com/logst
 You can use two different backends to persist and manage the list of known errors: a plain text file and Consul key/value
   storage. Why Consul? Just because we already have it in our infrastructure, it supports k/v and has a pretty UI (what is very important if you want your QA to manage the issues instead of you).
 
+More thoughts about the idea can be found in [my blog](http://trustmeiamadeveloper.com/2015/10/19/monitoring/).
+
 Inspired by https://github.com/Shopify/dashing
 
 
