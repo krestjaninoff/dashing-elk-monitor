@@ -146,7 +146,8 @@ module Elk
     # Check if service's logs have errors
     def get_elk_data(query)
       index = "logstash-" + Time.now.strftime("%Y.%m.%d")
-      url = "/#{index}/rest-api/_search"
+      type = "rest-api"
+      url = "/#{index}/#{type}/_search"
 
       req = Net::HTTP::Post.new( url, initheader = {'Content-Type' =>'application/json'} )
       req.body = query

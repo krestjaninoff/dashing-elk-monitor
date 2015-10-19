@@ -1,15 +1,13 @@
 #A Dashing extension for ELK-based microservices monitoring
 
-**Project is under construction**
-
 This is a simple Dashing extension which allows you to visualize LogStash'ed logs
- of your application in simple and very effective way:
+ of your application in a simple and very effective way:
 
-![](http://trustmeiamadeveloper.com/content/images/2015/10/monitoring_small.jpg)
+![](http://trustmeiamadeveloper.com/content/images/2015/10/dasing_elk_monitoring_small.jpg)
 
-It assumes that you are using default [LogStash appender](https://github.com/logstash/logstash-logback-encoder) for LogBack
- with a default LogStash mapping. Also, it wants you to add an additional field,
- which allows us to distinguish one service from another - `app.id` (see `elk-client.rb` for ES query example).
+It assumes that you are using the default [LogStash appender](https://github.com/logstash/logstash-logback-encoder) for LogBack
+ with the default LogStash mapping. Also, it wants you to add an additional field,
+ which allows to distinguish one service from another - `app.id` (see `elk-client.rb` for ES query example).
 
 You can use two different backends to persist and manage the list of known errors: a plain text file and Consul key/value
   storage. Why Consul? Just because we already have it in our infrastructure, it supports k/v and has a pretty UI (what is very important if you want your QA to manage the issues instead of you).
