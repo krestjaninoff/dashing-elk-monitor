@@ -5,7 +5,7 @@ This is a simple Dashing extension which allows you to visualize LogStash'ed log
 
 ![](http://trustmeiamadeveloper.com/content/images/2015/10/dasing_elk_monitoring_small.jpg)
 
-It assumes that you are using the default [LogStash appender](https://github.com/logstash/logstash-logback-encoder) for LogBack
+It assumes that you use the default [LogStash appender](https://github.com/logstash/logstash-logback-encoder) for LogBack
  with the default LogStash mapping. Also, it wants you to add an additional field,
  which allows to distinguish one service from another - `app.id` (see `elk-client.rb` for ES query example).
 
