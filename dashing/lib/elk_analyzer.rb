@@ -16,12 +16,13 @@ module Elk
     WARN = "warn"
     ERROR = "error"
 
-    def initialize(service, known_errors, host, port, ttl)
+    def initialize(service, known_errors, host, port, type, ttl)
       @service = service
       @known_errors = known_errors
 
       @host = host
       @port = port
+      @type = type
       @ttl = ttl
     end
 
@@ -146,8 +147,7 @@ module Elk
     # Check if service's logs have errors
     def get_elk_data(query)
       index = "logstash-" + Time.now.strftime("%Y.%m.%d")
-      type = "rest-api"
-      url = "/#{index}/#{type}/_search"
+      url = "/#{index}/#{@type}/_search"
 
       req = Net::HTTP::Post.new( url, initheader = {'Content-Type' =>'application/json'} )
       req.body = query

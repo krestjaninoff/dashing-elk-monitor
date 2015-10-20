@@ -36,6 +36,7 @@ All other settings must be set up through ENV variables:
 
   * ELK_HOST - ElasticSearch host ('elk-host.com')
   * ELK_PORT - ElasticSearch port ('9200')
+  * ELK_TYPE - Type of your indices in ES ('default')
   * ELK_LOG_ACTUAL_TIME - Time period for analyzing ('60m')
   * DEM_ERRORS_SOURCE - Source of known errors, could be either 'file' or 'consul' (default is 'file')
   * CONSUL_KV_API - Consul key/value API url ('http://consul-host/v1/kv')
@@ -57,6 +58,7 @@ docker run -d \
       \
     -e ELK_HOST=elk-host.com \
     -e ELK_PORT=9200 \
+    -e ELK_TYPE=your-type \
     -e ELK_LOG_ACTUAL_TIME=60m \
     -e DEM_ERRORS_SOURCE=file \
     -e CONSUL_KV_API=http://consul-host/v1/kv \

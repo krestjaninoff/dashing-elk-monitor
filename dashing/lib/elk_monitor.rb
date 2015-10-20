@@ -9,9 +9,10 @@ module Elk
   class Monitor
 
     # Dummy constructor
-    def initialize(elk_host, services, errors_provider, ttl='60m', elk_port = '9200')
+    def initialize(elk_host, services, errors_provider, ttl='60m', elk_port = '9200', elk_type = 'default')
       @host = elk_host
       @port = elk_port
+      @type = elk_type
       @ttl = ttl
 
       @services_to_check = services
@@ -33,8 +34,8 @@ module Elk
       @services_to_check.each do |c|
 
         # Analyze services data in parallel
-        threads[c] = Thread.new(c, known_errors, @host, @port, @ttl){ |c, errs, host, port, ttl|
-           Thread.current[:report] = Elk::Analyzer.new(c, errs, host, port, ttl).analyze }
+        threads[c] = Thread.new(c, known_errors, @host, @port, @type, @ttl){ |c, errs, host, port, type, ttl|
+           Thread.current[:report] = Elk::Analyzer.new(c, errs, host, port, type, ttl).analyze }
       end
 
       # Gather threads reports
@@ -52,6 +53,6 @@ end
 
 # Entry point for testing the script
 if __FILE__ == $0
-  monitor = Elk::Monitor.new(''["good-service", "bad-service", "missed-service"], [])
+  monitor = Elk::Monitor.new('localhost', ["good-service", "bad-service", "missed-service"], [])
   puts monitor.check
 end

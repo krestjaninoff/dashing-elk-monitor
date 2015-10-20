@@ -7,6 +7,7 @@ require './lib/err_local_file.rb'
 #
 ELK_HOST = ENV['ELK_HOST'] || 'elastic-host'
 ELK_PORT = ENV['ELK_PORT'] || '9200'
+ELK_TYPE = ENV['ELK_TYPE'] || 'default'
 ELK_LOG_ACTUAL_TIME = ENV['ELK_LOG_ACTUAL_TIME'] || '60m'
 
 DEM_ERRORS_SOURCE = ENV['DEM_ERRORS_SOURCE'] || 'file'
@@ -15,8 +16,8 @@ CONSUL_KV_API = ENV['CONSUL_KV_API'] || 'http://consul-host/v1/kv'
 CONSUL_DC = ENV['CONSUL_DC'] || 'dc1'
 CONSUL_ERRORS_PATH = ENV['CONSUL_ERRORS_PATH'] || 'path/to/errors'
 
-puts "Configuration: %s, %s, %s, %s, %s, %s, %s" %
- [ELK_HOST, ELK_PORT, ELK_LOG_ACTUAL_TIME, DEM_ERRORS_SOURCE, CONSUL_KV_API, CONSUL_DC, CONSUL_ERRORS_PATH]
+puts "Configuration: %s, %s, %s, %s, %s, %s, %s, %s" %
+ [ELK_HOST, ELK_PORT, ELK_TYPE, ELK_LOG_ACTUAL_TIME, DEM_ERRORS_SOURCE, CONSUL_KV_API, CONSUL_DC, CONSUL_ERRORS_PATH]
 
 services = []
 File.read("dashboards/dashboard.erb").each_line do |line|
@@ -33,7 +34,7 @@ else
   err_provider = Err::LocalFile.new
 end
 
-monitor = Elk::Monitor.new(ELK_HOST, services, err_provider, ELK_LOG_ACTUAL_TIME, ELK_PORT)
+monitor = Elk::Monitor.new(ELK_HOST, services, err_provider, ELK_LOG_ACTUAL_TIME, ELK_PORT, ELK_TYPE)
 
 #
 # Job scheduler
