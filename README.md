@@ -60,7 +60,9 @@ docker run -d \
     -e ELK_PORT=9200 \
     -e ELK_TYPE=your-type \
     -e ELK_LOG_ACTUAL_TIME=60m \
+      \
     -e DEM_ERRORS_SOURCE=file \
+      \
     -e CONSUL_KV_API=http://consul-host/v1/kv \
     -e CONSUL_DC=dc1 \
     -e CONSUL_ERRORS_PATH=path/to/errors \
@@ -72,4 +74,5 @@ docker run -d \
     krestjaninoff/dashing-elk-monitor:latest
 ```
 
-Add the timezone, if necessary (-e "TZ=Europe/Moscow")
+Of course, you don't have to set up `CONSUL*` settings if you choose `DEM_ERRORS_SOURCE=file`,
+ as far as you don't have to mount `/known.errors` file in case of using Consul :)
