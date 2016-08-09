@@ -54,7 +54,8 @@ errors = client.search(index=index, body=es_request, size=5)
 # Send message to Slack
 for error in errors['hits']['hits']:
 
-    message = error["_source"]["message"]
+    message = (error["_source"]["component"] if 'component' in error["_source"] else "python") + ": " + \
+              error["_source"]["message"]
     if 'stack_trace' in error["_source"]:
         message += "\n\n" + error["_source"]["stack_trace"][:500]
 
