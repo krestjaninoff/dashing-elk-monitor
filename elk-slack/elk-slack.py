@@ -12,26 +12,35 @@ slack = IncomingWebhook(url='https://hooks.slack.com/services/XXX/YYY/ZZZ')
 
 # Read the black list
 black_list = [line.strip() for line in open("black.list", 'r')]
-exclude_data = {"must_not": []}
-for error in black_list:
-    exclude_data.get('must_not').append({
-        "query_string": {
-            "default_field": "message",
-            "minimum_should_match": "100%",
-            "query": error
-        }
-    })
-#print(exclude_data)
+black_list = [line for line in black_list if line]
+#print(black_list)
+
+
+query = {"match_all": {}}
+if black_list:
+    exclude_data = {"must_not": []}
+
+    for error in black_list:
+        exclude_data.get('must_not').append({
+            "query_string": {
+                "default_field": "message",
+                "minimum_should_match": "100%",
+                "query": error
+            }
+        })
+
+    query = {"bool": exclude_data}
+#print(query)
 #exit()
 
 
 # Build the search query
 es_request = {
-    "query": {"bool": exclude_data},
+    "query": query,
     "filter": {
         "and": [
             {"term": {"level.raw": "ERROR"}},
-            {"range": {"@timestamp": {"gte": "now-2m"}}}
+            {"range": {"@timestamp": {"gte": "now-1m"}}}
         ]
     }
 }
@@ -39,7 +48,7 @@ es_request = {
 
 # Get errors
 index = datetime.datetime.now().strftime("logstash-%Y.%m.%d")
-errors = client.search(index=index, body=es_request, size=20)
+errors = client.search(index=index, body=es_request, size=5)
 
 
 # Send message to Slack
