@@ -3,6 +3,10 @@ from slacker import IncomingWebhook
 import datetime
 
 
+# Settings
+link = "http://your-kibana.com/kibana/app/kibana#/doc/logstash-*/%s/logs?id=%s"
+
+
 # Init clients
 client = Elasticsearch(
     hosts=['http://127.0.0.1:9200']
@@ -54,8 +58,11 @@ errors = client.search(index=index, body=es_request, size=5)
 # Send message to Slack
 for error in errors['hits']['hits']:
 
+    error_link = link % (error['_index'], error['_id'])
     message = "*" + (error["_source"]["component"] if 'component' in error["_source"] else "python") + "*: " + \
               error["_source"]["message"]
+    message += "\n*Link*: " + error_link
+
     if 'stack_trace' in error["_source"]:
         message += "\n\n```" + error["_source"]["stack_trace"][:500] + "```"
 
