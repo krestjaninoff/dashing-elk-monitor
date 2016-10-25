@@ -4,7 +4,7 @@ import datetime
 
 
 # Settings
-link = "http://your-kibana.com/kibana/app/kibana#/doc/logstash-*/%s/logs?id=%s"
+link = "http://your-kibana.com/kibana/app/kibana#/doc/logstash-*/%s/%s?id=%s"
 
 
 # Init clients
@@ -58,7 +58,7 @@ errors = client.search(index=index, body=es_request, size=5)
 # Send message to Slack
 for error in errors['hits']['hits']:
 
-    error_link = link % (error['_index'], error['_id'])
+    error_link = link % (error['_index'], error['_type'], error['_id'])
     message = "*" + (error["_source"]["component"] if 'component' in error["_source"] else "python") + "*: " + \
               error["_source"]["message"]
     message += "\n*Link*: " + error_link
